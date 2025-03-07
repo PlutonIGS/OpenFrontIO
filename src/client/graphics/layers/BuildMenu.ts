@@ -19,11 +19,12 @@ import mirvIcon from "../../../../resources/images/MIRVIcon.svg";
 import cityIcon from "../../../../resources/images/CityIconWhite.svg";
 import shieldIcon from "../../../../resources/images/ShieldIconWhite.svg";
 import labIcon from "../../../../resources/images/LabIcon.png";
+import barnIcon from "../../../../resources/images/BarnIcon.svg";
+import bankIcon from "../../../../resources/images/BankIcon.svg";
 import { renderNumber } from "../../Utils";
 import { GameView, PlayerView } from "../../../core/game/GameView";
 import { TileRef } from "../../../core/game/GameMap";
 import { Layer } from "./Layer";
-import barnIcon from "../../../../resources/images/BarnIcon.svg";
 
 interface BuildItemDisplay {
   unitType: UnitType;
@@ -82,6 +83,12 @@ const buildTable: BuildItemDisplay[][] = [
       unitType: UnitType.Barn,
       icon: barnIcon,
       description: "Provides small population boost and steady income",
+    },
+    {
+      unitType: UnitType.Bank,
+      icon: bankIcon,
+      description:
+        "Enables financial services like loans, investments, and savings",
     },
   ],
 ];

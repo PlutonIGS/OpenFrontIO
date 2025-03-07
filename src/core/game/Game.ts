@@ -80,6 +80,7 @@ export enum UnitType {
   Construction = "Construction",
   ResearchCenter = "Research Center",
   Barn = "Barn",
+  Bank = "Bank",
 }
 export type NukeType =
   | UnitType.AtomBomb
@@ -282,6 +283,7 @@ export interface Player {
   setTroops(troops: number): void;
   addTroops(troops: number): void;
   removeTroops(troops: number): number;
+  addPopulation(amount: number): void;
 
   // Units
   units(...types: UnitType[]): Unit[];

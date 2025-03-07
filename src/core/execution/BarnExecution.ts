@@ -31,12 +31,19 @@ export class BarnExecution implements Execution {
   tick(ticks: number): void {
     if (this.barn == null) {
       const player = this.mg.player(this._owner);
-      if (!player.canBuild(UnitType.Barn, this.tile)) {
-        consolex.warn(`player ${player} cannot build barn at ${this.tile}`);
+      if (!player) {
         this.active = false;
         return;
       }
-      this.barn = player.buildUnit(UnitType.Barn, 0, this.tile);
+
+      try {
+        this.barn = player.buildUnit(UnitType.Barn, 0, this.tile);
+        console.log("Barn built successfully:", this.barn);
+      } catch (error) {
+        console.error("Error building barn:", error);
+        this.active = false;
+        return;
+      }
     }
 
     if (!this.barn.isActive()) {
@@ -54,17 +61,10 @@ export class BarnExecution implements Execution {
       owner.addGold(bonus);
     }
 
-    // Increase population capacity slightly
-    if (ticks % 100 === 0) {
-      // Every 100 ticks
-      const owner = this.barn.owner();
-      const popIncrease = 10000; // 10k population increase
-      owner.addMaxPopulation(popIncrease);
+    // Add population every 100 ticks
+    if (ticks % 100 === 0 && this.barn && this.barn.owner()) {
+      this.barn.owner().addPopulation(10000);
     }
-  }
-
-  owner(): Player {
-    return null;
   }
 
   isActive(): boolean {
@@ -73,5 +73,9 @@ export class BarnExecution implements Execution {
 
   activeDuringSpawnPhase(): boolean {
     return false;
+  }
+
+  owner(): Player {
+    return this.barn ? this.barn.owner() : null;
   }
 }

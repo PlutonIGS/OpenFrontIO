@@ -258,6 +258,13 @@ export class DefaultConfig implements Config {
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 3 * 10,
         };
+      case UnitType.Bank:
+        return {
+          cost: (p: Player) =>
+            p.type() == PlayerType.Human && this.infiniteGold() ? 0 : 250_000,
+          territoryBound: true,
+          constructionDuration: this.instantBuild() ? 0 : 4 * 10,
+        };
       default:
         assertNever(type);
     }

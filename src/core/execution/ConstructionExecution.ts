@@ -18,6 +18,8 @@ import { NukeExecution } from "./NukeExecution";
 import { PortExecution } from "./PortExecution";
 import { WarshipExecution } from "./WarshipExecution";
 import { ResearchCenterExecution } from "./ResearchCenterExecution";
+import { BarnExecution } from "./BarnExecution";
+import { BankExecution } from "./BankExecution";
 
 export class ConstructionExecution implements Execution {
   private player: Player;
@@ -119,6 +121,12 @@ export class ConstructionExecution implements Execution {
         this.mg.addExecution(
           new ResearchCenterExecution(player.id(), this.tile),
         );
+        break;
+      case UnitType.Barn:
+        this.mg.addExecution(new BarnExecution(player.id(), this.tile));
+        break;
+      case UnitType.Bank:
+        this.mg.addExecution(new BankExecution(player.id(), this.tile));
         break;
       default:
         throw Error(`unit type ${this.constructionType} not supported`);

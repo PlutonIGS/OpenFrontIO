@@ -703,6 +703,13 @@ export class PlayerImpl implements Player {
           return false;
         }
         return this.landBasedStructureSpawn(tile);
+      case UnitType.Barn:
+        return this.landBasedStructureSpawn(tile);
+      case UnitType.Bank:
+        if (this.units(UnitType.Bank).length >= 1) {
+          return false;
+        }
+        return this.landBasedStructureSpawn(tile);
       default:
         assertNever(type);
     }
@@ -946,6 +953,33 @@ export class PlayerImpl implements Player {
         }
       }
       return false;
+    }
+  }
+
+  addPopulation(amount: number): void {
+    this._troops += toInt(amount);
+  }
+
+  private readonly supportedUnitTypes = new Set<UnitType>([
+    UnitType.AtomBomb,
+    UnitType.HydrogenBomb,
+    UnitType.Warship,
+    UnitType.Port,
+    UnitType.MissileSilo,
+    UnitType.DefensePost,
+    UnitType.City,
+    UnitType.ResearchCenter,
+    UnitType.Barn,
+    UnitType.Bank,
+  ]);
+
+  captureBank(tile: TileRef) {
+    if (this.units(UnitType.Bank).length >= 1) {
+      // Dismantle the bank and gain resources
+      this.addGold(125_000); // 50% of the bank's cost
+    } else {
+      // Capture the bank
+      this.buildUnit(UnitType.Bank, 0, tile);
     }
   }
 }
