@@ -137,6 +137,13 @@ export class DefaultConfig implements Config {
 
   unitInfo(type: UnitType): UnitInfo {
     switch (type) {
+      case UnitType.ResearchCenter:
+        return {
+          cost: (p: Player) =>
+            p.type() == PlayerType.Human && this.infiniteGold() ? 0 : 500_000,
+          territoryBound: true,
+          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+        };
       case UnitType.TransportShip:
         return {
           cost: () => 0,
@@ -244,10 +251,18 @@ export class DefaultConfig implements Config {
           cost: () => 0,
           territoryBound: true,
         };
+      case UnitType.Barn:
+        return {
+          cost: (p: Player) =>
+            p.type() == PlayerType.Human && this.infiniteGold() ? 0 : 75_000,
+          territoryBound: true,
+          constructionDuration: this.instantBuild() ? 0 : 3 * 10,
+        };
       default:
         assertNever(type);
     }
   }
+
   defaultDonationAmount(sender: Player): number {
     return Math.floor(sender.troops() / 3);
   }

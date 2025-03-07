@@ -18,10 +18,12 @@ import portIcon from "../../../../resources/images/PortIcon.svg";
 import mirvIcon from "../../../../resources/images/MIRVIcon.svg";
 import cityIcon from "../../../../resources/images/CityIconWhite.svg";
 import shieldIcon from "../../../../resources/images/ShieldIconWhite.svg";
+import labIcon from "../../../../resources/images/LabIcon.png";
 import { renderNumber } from "../../Utils";
 import { GameView, PlayerView } from "../../../core/game/GameView";
 import { TileRef } from "../../../core/game/GameMap";
 import { Layer } from "./Layer";
+import barnIcon from "../../../../resources/images/BarnIcon.svg";
 
 interface BuildItemDisplay {
   unitType: UnitType;
@@ -70,6 +72,16 @@ const buildTable: BuildItemDisplay[][] = [
       unitType: UnitType.City,
       icon: cityIcon,
       description: "Increase max population",
+    },
+    {
+      unitType: UnitType.ResearchCenter,
+      icon: labIcon,
+      description: "Generates additional resources through research",
+    },
+    {
+      unitType: UnitType.Barn,
+      icon: barnIcon,
+      description: "Provides small population boost and steady income",
     },
   ],
 ];
@@ -336,4 +348,27 @@ export class BuildMenu extends LitElement implements Layer {
   get isVisible() {
     return !this._hidden;
   }
+
+  private readonly units = [
+    {
+      type: UnitType.ResearchCenter,
+      name: "Research Center",
+      description: "Generates additional resources through research",
+      cost: (player) =>
+        this.game
+          .unitInfo(UnitType.ResearchCenter)
+          .cost(player as unknown as Player),
+      constructionDuration: () =>
+        this.game.unitInfo(UnitType.ResearchCenter).constructionDuration || 50,
+      canBuild: (tile) => {
+        const player = this.game.myPlayer();
+        // Simple check if we can build
+        const unitInfo = this.game.unitInfo(UnitType.ResearchCenter);
+        return (
+          player.gold() >= unitInfo.cost(player as unknown as Player) &&
+          this.game.isLand(tile)
+        );
+      },
+    },
+  ];
 }

@@ -667,36 +667,44 @@ export class PlayerImpl implements Player {
     return b;
   }
 
-  canBuild(unitType: UnitType, targetTile: TileRef): TileRef | false {
-    const cost = this.mg.unitInfo(unitType).cost(this);
+  canBuild(type: UnitType, tile: TileRef): TileRef | false {
+    const cost = this.mg.unitInfo(type).cost(this);
     if (!this.isAlive() || this.gold() < cost) {
       return false;
     }
-    switch (unitType) {
+    switch (type) {
       case UnitType.MIRV:
-        return this.nukeSpawn(targetTile);
+        return this.nukeSpawn(tile);
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
-        return this.nukeSpawn(targetTile);
+        return this.nukeSpawn(tile);
       case UnitType.MIRVWarhead:
-        return targetTile;
+        return tile;
       case UnitType.Port:
-        return this.portSpawn(targetTile);
+        return this.portSpawn(tile);
       case UnitType.Warship:
-        return this.warshipSpawn(targetTile);
+        return this.warshipSpawn(tile);
       case UnitType.Shell:
-        return targetTile;
+        return tile;
       case UnitType.TransportShip:
-        return this.transportShipSpawn(targetTile);
+        return this.transportShipSpawn(tile);
       case UnitType.TradeShip:
-        return this.tradeShipSpawn(targetTile);
+        return this.tradeShipSpawn(tile);
       case UnitType.MissileSilo:
       case UnitType.DefensePost:
       case UnitType.City:
       case UnitType.Construction:
-        return this.landBasedStructureSpawn(targetTile);
+        return this.landBasedStructureSpawn(tile);
+      case UnitType.ResearchCenter:
+        if (this.units(UnitType.ResearchCenter).length >= 3) {
+          return false;
+        }
+        if (!this.mg.isLand(tile)) {
+          return false;
+        }
+        return this.landBasedStructureSpawn(tile);
       default:
-        assertNever(unitType);
+        assertNever(type);
     }
   }
 

@@ -1,6 +1,6 @@
 import { Config } from "../configuration/Config";
 import { GameEvent } from "../EventBus";
-import { PlayerView } from "./GameView";
+import { IPlayerView as PlayerView } from "./GameView";
 import { ClientID, GameConfig, GameID } from "../Schemas";
 import { GameMap, GameMapImpl, TileRef } from "./GameMap";
 import {
@@ -57,12 +57,11 @@ export enum GameType {
 }
 
 export interface UnitInfo {
-  cost: (player: Player | PlayerView) => Gold;
-  // Determines if its owner changes when its tile is conquered.
+  cost: (player: Player) => number;
   territoryBound: boolean;
-  maxHealth?: number;
-  damage?: number;
   constructionDuration?: number;
+  damage?: number;
+  maxHealth?: number;
 }
 
 export enum UnitType {
@@ -79,6 +78,8 @@ export enum UnitType {
   MIRV = "MIRV",
   MIRVWarhead = "MIRV Warhead",
   Construction = "Construction",
+  ResearchCenter = "Research Center",
+  Barn = "Barn",
 }
 export type NukeType =
   | UnitType.AtomBomb

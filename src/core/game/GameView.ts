@@ -96,7 +96,41 @@ export class UnitView {
   }
 }
 
-export class PlayerView {
+export interface IPlayerView {
+  actions(tile: TileRef): Promise<PlayerActions>;
+  outgoingAttacks(): AttackUpdate[];
+  incomingAttacks(): AttackUpdate[];
+  units(...types: UnitType[]): UnitView[];
+  nameLocation(): NameViewData;
+  smallID(): number;
+  flag(): string;
+  name(): string;
+  displayName(): string;
+  clientID(): ClientID;
+  id(): PlayerID;
+  type(): PlayerType;
+  isAlive(): boolean;
+  isPlayer(): this is Player;
+  numTilesOwned(): number;
+  allies(): IPlayerView[];
+  targets(): IPlayerView[];
+  gold(): Gold;
+  population(): number;
+  workers(): number;
+  targetTroopRatio(): number;
+  troops(): number;
+  isAlliedWith(other: IPlayerView): boolean;
+  isRequestingAllianceWith(other: IPlayerView): boolean;
+  hasEmbargoAgainst(other: IPlayerView): boolean;
+  profile(): Promise<PlayerProfile>;
+  transitiveTargets(): IPlayerView[];
+  isTraitor(): boolean;
+  outgoingEmojis(): EmojiMessage[];
+  info(): PlayerInfo;
+  canBuild(type: UnitType, tile: TileRef): TileRef | false;
+}
+
+export class PlayerView implements IPlayerView {
   constructor(
     private game: GameView,
     public data: PlayerUpdate,
@@ -120,9 +154,14 @@ export class PlayerView {
   }
 
   units(...types: UnitType[]): UnitView[] {
-    return this.game
-      .units(...types)
-      .filter((u) => u.owner().smallID() == this.smallID());
+    if (types.length === 0) {
+      return Array.from(this.game.getUnits().values()).filter(
+        (u) => u.owner().smallID() === this.smallID(),
+      );
+    }
+    return Array.from(this.game.getUnits().values()).filter(
+      (u) => u.owner().smallID() === this.smallID() && types.includes(u.type()),
+    );
   }
 
   nameLocation(): NameViewData {
@@ -132,68 +171,84 @@ export class PlayerView {
   smallID(): number {
     return this.data.smallID;
   }
+
   flag(): string {
     return this.data.flag;
   }
+
   name(): string {
     return this.data.name;
   }
+
   displayName(): string {
     return this.data.displayName;
   }
+
   clientID(): ClientID {
     return this.data.clientID;
   }
+
   id(): PlayerID {
     return this.data.id;
   }
+
   type(): PlayerType {
     return this.data.playerType;
   }
+
   isAlive(): boolean {
     return this.data.isAlive;
   }
+
   isPlayer(): this is Player {
     return true;
   }
+
   numTilesOwned(): number {
     return this.data.tilesOwned;
   }
-  allies(): PlayerView[] {
+
+  allies(): IPlayerView[] {
     return this.data.allies.map(
       (a) => this.game.playerBySmallID(a) as PlayerView,
     );
   }
-  targets(): PlayerView[] {
+
+  targets(): IPlayerView[] {
     return this.data.targets.map(
       (id) => this.game.playerBySmallID(id) as PlayerView,
     );
   }
+
   gold(): Gold {
     return this.data.gold;
   }
+
   population(): number {
     return this.data.population;
   }
+
   workers(): number {
     return this.data.workers;
   }
+
   targetTroopRatio(): number {
     return this.data.targetTroopRatio;
   }
+
   troops(): number {
     return this.data.troops;
   }
 
-  isAlliedWith(other: PlayerView): boolean {
-    return this.data.allies.some((n) => other.smallID() == n);
+  isAlliedWith(other: IPlayerView): boolean {
+    return this.data.allies.some((n) => other.smallID() === n);
   }
 
-  isRequestingAllianceWith(other: PlayerView) {
-    return this.data.outgoingAllianceRequests.some((id) => other.id() == id);
+  isRequestingAllianceWith(other: IPlayerView): boolean {
+    return this.data.outgoingAllianceRequests.some((id) => other.id() === id);
   }
 
-  hasEmbargoAgainst(other: PlayerView): boolean {
+  hasEmbargoAgainst(other: IPlayerView): boolean {
     return this.data.embargoes.has(other.id());
   }
 
@@ -201,16 +256,18 @@ export class PlayerView {
     return this.game.worker.playerProfile(this.smallID());
   }
 
-  transitiveTargets(): PlayerView[] {
+  transitiveTargets(): IPlayerView[] {
     return [...this.targets(), ...this.allies().flatMap((p) => p.targets())];
   }
 
   isTraitor(): boolean {
     return this.data.isTraitor;
   }
+
   outgoingEmojis(): EmojiMessage[] {
     return this.data.outgoingEmojis;
   }
+
   info(): PlayerInfo {
     return new PlayerInfo(
       this.flag(),
@@ -219,6 +276,17 @@ export class PlayerView {
       this.clientID(),
       this.id(),
     );
+  }
+
+  canBuild(type: UnitType, tile: TileRef): TileRef | false {
+    const cost = this.game.unitInfo(type).cost(this as unknown as Player);
+    if (!this.isAlive() || this.gold() < cost) {
+      return false;
+    }
+    if (!this.game.isLand(tile)) {
+      return false;
+    }
+    return tile;
   }
 }
 
@@ -486,5 +554,9 @@ export class GameView implements GameMap {
   }
   numTilesWithFallout(): number {
     return this._map.numTilesWithFallout();
+  }
+
+  public getUnits(): Map<number, UnitView> {
+    return this._units;
   }
 }

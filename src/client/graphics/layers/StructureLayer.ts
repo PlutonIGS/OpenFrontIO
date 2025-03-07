@@ -7,6 +7,7 @@ import anchorIcon from "../../../../resources/images/AnchorIcon.png";
 import missileSiloIcon from "../../../../resources/images/MissileSiloUnit.png";
 import shieldIcon from "../../../../resources/images/ShieldIcon.png";
 import cityIcon from "../../../../resources/images/CityIcon.png";
+import labIcon from "../../../../resources/images/LabIcon.png";
 import { GameView, UnitView } from "../../../core/game/GameView";
 import { Cell, UnitType } from "../../../core/game/Game";
 import { GameUpdateType } from "../../../core/game/GameUpdates";
@@ -45,6 +46,11 @@ export class StructureLayer implements Layer {
     },
     [UnitType.City]: {
       icon: cityIcon,
+      borderRadius: 8,
+      territoryRadius: 6,
+    },
+    [UnitType.ResearchCenter]: {
+      icon: labIcon,
       borderRadius: 8,
       territoryRadius: 6,
     },
